@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Y2K PFP Generator</title>
     <style>
-        /* The Oceanic Y2K / Vista Background */
+        /* Windows Vista Background */
         body {
             margin: 0;
             height: 100vh;
@@ -29,7 +29,7 @@
             overflow: hidden;
         }
 
-        /* The Glossy Title Bar */
+        /* Glossy Title Bar */
         .title-bar {
             background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8) 0%, rgba(180, 220, 255, 0.5) 50%, rgba(120, 190, 255, 0.6) 51%, rgba(200, 240, 255, 0.8) 100%);
             padding: 8px 15px;
@@ -88,7 +88,7 @@
             border-radius: 4px;
             background: rgba(0,0,0,0.1);
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-            display: none; /* Hidden until upload */
+            display: none;
         }
     </style>
 </head>
@@ -130,79 +130,49 @@
         });
 
         originalImage.onload = function() {
-            // Set canvas size to a square PFP size
             canvas.width = 400;
             canvas.height = 400;
             drawOriginalImage();
             
-            // Show the buttons and canvas
             canvas.style.display = 'block';
             regenerateBtn.style.display = 'inline-block';
             downloadBtn.style.display = 'inline-block';
         };
 
         function drawOriginalImage() {
-            // Center and crop the image into a square
             const size = Math.min(originalImage.width, originalImage.height);
             const x = (originalImage.width - size) / 2;
             const y = (originalImage.height - size) / 2;
             ctx.drawImage(originalImage, x, y, size, size, 0, 0, canvas.width, canvas.height);
         }
 
-        // 2. The Random Generator Effects
+        // 2. The Generator Effects
         regenerateBtn.addEventListener('click', function() {
-            drawOriginalImage(); // Reset to normal first
-            const effect = Math.floor(Math.random() * 3); // Pick a random number 0, 1, or 2
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.filter = 'none';
+            ctx.imageSmoothingEnabled = true;
 
-            let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            let data = imageData.data;
+            // Currently only running the Pixelator until we agree on new filters
+            const effect = 0; 
 
             if (effect === 0) {
-                // Effect 1: Oceanic Cyan Wash
-                for (let i = 0; i < data.length; i += 4) {
-                    data[i] = data[i] * 0.5;       // Reduce Red
-                    data[i+1] = data[i+1] * 1.2;   // Boost Green
-                    data[i+2] = data[i+2] * 1.5;   // Boost Blue
-                }
-                ctx.putImageData(imageData, 0, 0);
-
-            } else if (effect === 1) {
-                // Effect 2: Web 1.0 Crunchy Pixelator
-                const pixelSize = 10;
+                // The Crunchy Pixelator
+                const pixelSize = 8;
                 const tempCanvas = document.createElement('canvas');
                 const tempCtx = tempCanvas.getContext('2d');
                 tempCanvas.width = canvas.width / pixelSize;
                 tempCanvas.height = canvas.height / pixelSize;
                 
-                // Draw tiny
-                tempCtx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
+                tempCtx.drawImage(originalImage, 0, 0, tempCanvas.width, tempCanvas.height);
                 
-                // Turn off smoothing to make it chunky
                 ctx.imageSmoothingEnabled = false;
-                
-                // Draw big again
+                ctx.filter = 'contrast(120%) saturate(150%)'; 
                 ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, canvas.width, canvas.height);
-
-            } else if (effect === 2) {
-                // Effect 3: RGB Cyber Glitch
-                const shiftedData = new Uint8ClampedArray(data);
-                const shiftAmount = 15; // Shift pixels by 15px
-                
-                for (let i = 0; i < data.length; i += 4) {
-                    // Move the Red channel to the left
-                    if (i - (shiftAmount * 4) >= 0) {
-                        data[i - (shiftAmount * 4)] = shiftedData[i]; 
-                    }
-                    // Move the Blue channel to the right
-                    if (i + (shiftAmount * 4) < data.length) {
-                        data[i + (shiftAmount * 4) + 2] = shiftedData[i + 2]; 
-                    }
-                }
-                ctx.putImageData(imageData, 0, 0);
-            }
+            } 
+            // New filters will go here once you tell me what they should look like
         });
 
-        // 3. Let them download the new PFP
+        // 3. Download
         downloadBtn.addEventListener('click', function() {
             const link = document.createElement('a');
             link.download = 'Y2K_PFP.png';
