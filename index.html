@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Y2K PFP Generator</title>
+    <style>
+        /* The Oceanic Y2K / Vista Background */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #0088cc, #00ffcc);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        /* Windows Vista Aero Glass Window */
+        .vista-window {
+            width: 400px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.4);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* The Glossy Title Bar */
+        .title-bar {
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8) 0%, rgba(180, 220, 255, 0.5) 50%, rgba(120, 190, 255, 0.6) 51%, rgba(200, 240, 255, 0.8) 100%);
+            padding: 8px 15px;
+            font-weight: bold;
+            color: #003366;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            border-bottom: 1px solid rgba(255,255,255,0.6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .window-controls span {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 5px;
+            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3);
+        }
+        .close-btn { background: #ff5555; }
+        .max-btn { background: #55ff55; }
+        .min-btn { background: #ffdd55; }
+
+        /* Content Area */
+        .content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Glossy Vista Buttons */
+        button, input[type="file"]::file-selector-button {
+            background: linear-gradient(to bottom, #e0f0ff 0%, #a0d0ff 49%, #70b0ff 50%, #c0e0ff 100%);
+            border: 1px solid #4080c0;
+            border-radius: 4px;
+            padding: 8px 15px;
+            color: #003366;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.8), 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+
+        button:active, input[type="file"]::file-selector-button:active {
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.4);
+            background: #70b0ff;
+        }
+
+        /* Canvas (Where the image goes) */
+        canvas {
+            max-width: 100%;
+            border: 2px solid rgba(255,255,255,0.6);
+            border-radius: 4px;
+            background: rgba(0,0,0,0.1);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            display: none; /* Hidden until upload */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="vista-window">
+        <div class="title-bar">
+            <span>PFP_Gen_v1.exe</span>
+            <div class="window-controls">
+                <span class="min-btn"></span>
+                <span class="max-btn"></span>
+                <span class="close-btn"></span>
+            </div>
+        </div>
+        <div class="content">
+            <input type="file" id="upload" accept="image/*">
+            <button id="regenerate" style="display:none;">Regenerate Vibe</button>
+            <canvas id="canvas"></canvas>
+            <button id="download" style="display:none;">Save PFP</button>
+        </div>
+    </div>
+
+    <script>
+        const upload = document.getElementById('upload');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const regenerateBtn = document.getElementById('regenerate');
+        const downloadBtn = document.getElementById('download');
+
+        let originalImage = new Image();
+
+        // 1. Handle the Upload
+        upload.addEventListener('change', function(e) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                originalImage.src = event.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        });
+
+        originalImage.onload = function() {
+            // Set canvas size to a square PFP size
+            canvas.width = 400;
+            canvas.height = 400;
+            drawOriginalImage();
+            
+            // Show the buttons and canvas
+            canvas.style.display = 'block';
+            regenerateBtn.style.display = 'inline-block';
+            downloadBtn.style.display = 'inline-block';
+        };
+
+        function drawOriginalImage() {
+            // Center and crop the image into a square
+            const size = Math.min(originalImage.width, originalImage.height);
+            const x = (originalImage.width - size) / 2;
+            const y = (originalImage.height - size) / 2;
+            ctx.drawImage(originalImage, x, y, size, size, 0, 0, canvas.width, canvas.height);
+        }
+
+        // 2. The Random Generator Effects
+        regenerateBtn.addEventListener('click', function() {
+            drawOriginalImage(); // Reset to normal first
+            const effect = Math.floor(Math.random() * 3); // Pick a random number 0, 1, or 2
+
+            let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let data = imageData.data;
+
+            if (effect === 0) {
+                // Effect 1: Oceanic Cyan Wash
+                for (let i = 0; i < data.length; i += 4) {
+                    data[i] = data[i] * 0.5;       // Reduce Red
+                    data[i+1] = data[i+1] * 1.2;   // Boost Green
+                    data[i+2] = data[i+2] * 1.5;   // Boost Blue
+                }
+                ctx.putImageData(imageData, 0, 0);
+
+            } else if (effect === 1) {
+                // Effect 2: Web 1.0 Crunchy Pixelator
+                const pixelSize = 10;
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = canvas.width / pixelSize;
+                tempCanvas.height = canvas.height / pixelSize;
+                
+                // Draw tiny
+                tempCtx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // Turn off smoothing to make it chunky
+                ctx.imageSmoothingEnabled = false;
+                
+                // Draw big again
+                ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, canvas.width, canvas.height);
+
+            } else if (effect === 2) {
+                // Effect 3: RGB Cyber Glitch
+                const shiftedData = new Uint8ClampedArray(data);
+                const shiftAmount = 15; // Shift pixels by 15px
+                
+                for (let i = 0; i < data.length; i += 4) {
+                    // Move the Red channel to the left
+                    if (i - (shiftAmount * 4) >= 0) {
+                        data[i - (shiftAmount * 4)] = shiftedData[i]; 
+                    }
+                    // Move the Blue channel to the right
+                    if (i + (shiftAmount * 4) < data.length) {
+                        data[i + (shiftAmount * 4) + 2] = shiftedData[i + 2]; 
+                    }
+                }
+                ctx.putImageData(imageData, 0, 0);
+            }
+        });
+
+        // 3. Let them download the new PFP
+        downloadBtn.addEventListener('click', function() {
+            const link = document.createElement('a');
+            link.download = 'Y2K_PFP.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    </script>
+</body>
+</html>
+
