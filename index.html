@@ -12,21 +12,23 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #0088cc, #ff99cc); /* Updated to Teal/Pink */
+            background: linear-gradient(135deg, #0088cc, #ff99cc);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
         }
 
-        /* Windows Vista Aero Glass Window */
+        /* Windows Vista Aero Glass Window - FIXED FOR MOBILE */
         .vista-window {
-            width: 400px;
+            width: 90%; /* Adapts to phone screen */
+            max-width: 400px;
+            max-height: 90vh; /* Prevents it from getting too tall */
+            overflow-y: auto; /* Lets you scroll if the image is big */
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.4);
             border-radius: 8px;
-            overflow: hidden;
         }
 
         /* The Glossy Title Bar */
@@ -40,6 +42,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
         }
 
         .window-controls span {
@@ -68,12 +72,14 @@
             background: linear-gradient(to bottom, #ffe0f0 0%, #ffb3d9 49%, #ff80bf 50%, #ffcce6 100%);
             border: 1px solid #cc4488;
             border-radius: 4px;
-            padding: 8px 15px;
+            padding: 10px 15px;
             color: #660033;
             font-weight: bold;
             cursor: pointer;
             box-shadow: inset 0 1px 2px rgba(255,255,255,0.8), 0 2px 4px rgba(0,0,0,0.2);
             transition: all 0.2s;
+            width: 100%; /* Makes buttons easier to tap on mobile */
+            max-width: 250px;
         }
 
         button:active, input[type="file"]::file-selector-button:active {
@@ -84,11 +90,21 @@
         /* Canvas */
         canvas {
             max-width: 100%;
+            height: auto;
             border: 2px solid rgba(255,255,255,0.6);
             border-radius: 4px;
             background: rgba(0,0,0,0.1);
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
             display: none;
+        }
+        
+        /* Container to hide buttons until needed */
+        #action-buttons {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
     </style>
 </head>
@@ -96,7 +112,7 @@
 
     <div class="vista-window">
         <div class="title-bar">
-            <span>PFP_Gen_v1.exe</span>
+            <span>PFP_Gen_v2.exe</span>
             <div class="window-controls">
                 <span class="min-btn"></span>
                 <span class="max-btn"></span>
@@ -105,7 +121,11 @@
         </div>
         <div class="content">
             <input type="file" id="upload" accept="image/*">
-            <button id="regenerate" style="display:none;">Regenerate Vibe</button>
+            
+            <div id="action-buttons">
+                <button id="regenerate">Regenerate Vibe</button>
+            </div>
+            
             <canvas id="canvas"></canvas>
             <button id="download" style="display:none;">Save PFP</button>
         </div>
@@ -117,10 +137,14 @@
         const ctx = canvas.getContext('2d');
         const regenerateBtn = document.getElementById('regenerate');
         const downloadBtn = document.getElementById('download');
+        const actionButtons = document.getElementById('action-buttons');
 
         let originalImage = new Image();
 
+        // 1. More robust file loading for mobile
         upload.addEventListener('change', function(e) {
+            if (!e.target.files || !e.target.files) return; // Stop if no file
+            
             const reader = new FileReader();
             reader.onload = function(event) {
                 originalImage.src = event.target.result;
@@ -128,13 +152,16 @@
             reader.readAsDataURL(e.target.files);
         });
 
+        // 2. Force UI updates when image is fully loaded
         originalImage.onload = function() {
             canvas.width = 400;
             canvas.height = 400;
             drawOriginalImage();
+            
+            // Un-hide the elements
             canvas.style.display = 'block';
-            regenerateBtn.style.display = 'inline-block';
-            downloadBtn.style.display = 'inline-block';
+            actionButtons.style.display = 'flex';
+            downloadBtn.style.display = 'block';
         };
 
         function drawOriginalImage() {
@@ -142,7 +169,6 @@
             const x = (originalImage.width - size) / 2;
             const y = (originalImage.height - size) / 2;
             
-            // Reset everything before drawing
             ctx.filter = 'none';
             ctx.globalCompositeOperation = 'source-over';
             ctx.globalAlpha = 1.0;
@@ -151,14 +177,11 @@
         }
 
         regenerateBtn.addEventListener('click', function() {
-            // Pick a random vibe (0, 1, or 2)
             const effect = Math.floor(Math.random() * 3); 
 
             if (effect === 0) {
-                // VIBE 1: Bubblegum Ethereal Bloom (Soft Pink Glow)
+                // VIBE 1: Bubblegum Ethereal Bloom
                 drawOriginalImage();
-                
-                // Draw a bright, blurry pink-tinted version on top to make it glow
                 ctx.globalCompositeOperation = 'screen';
                 ctx.filter = 'blur(8px) saturate(200%) hue-rotate(300deg) brightness(120%)';
                 ctx.globalAlpha = 0.6; 
@@ -168,16 +191,13 @@
                 const y = (originalImage.height - size) / 2;
                 ctx.drawImage(originalImage, x, y, size, size, 0, 0, canvas.width, canvas.height);
 
-                // Add a very faint pink wash over the whole thing
                 ctx.globalCompositeOperation = 'overlay';
-                ctx.fillStyle = 'rgba(255, 105, 180, 0.2)'; // Hot pink tint
+                ctx.fillStyle = 'rgba(255, 105, 180, 0.2)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             } else if (effect === 1) {
-                // VIBE 2: Oceanic Water Glow (Teal/Cyan Frutiger Aero)
+                // VIBE 2: Oceanic Water Glow
                 drawOriginalImage();
-                
-                // Draw a glowing teal/cyan layer
                 ctx.globalCompositeOperation = 'lighter';
                 ctx.filter = 'blur(5px) sepia(100%) hue-rotate(150deg) saturate(300%)';
                 ctx.globalAlpha = 0.5;
@@ -187,36 +207,32 @@
                 const y = (originalImage.height - size) / 2;
                 ctx.drawImage(originalImage, x, y, size, size, 0, 0, canvas.width, canvas.height);
 
-                // Glossy contrast boost
                 ctx.globalCompositeOperation = 'overlay';
-                ctx.fillStyle = 'rgba(0, 200, 255, 0.15)'; // Cyan tint
+                ctx.fillStyle = 'rgba(0, 200, 255, 0.15)'; 
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             } else if (effect === 2) {
-                // VIBE 3: Dream Pixels (Soft, glowing, mosaic pixels)
+                // VIBE 3: Dream Pixels
                 drawOriginalImage();
                 
-                const pixelSize = 12; // Size of the blocks
+                const pixelSize = 12; 
                 const tempCanvas = document.createElement('canvas');
                 const tempCtx = tempCanvas.getContext('2d');
                 tempCanvas.width = canvas.width / pixelSize;
                 tempCanvas.height = canvas.height / pixelSize;
                 
-                // Draw tiny
                 const size = Math.min(originalImage.width, originalImage.height);
                 const x = (originalImage.width - size) / 2;
                 const y = (originalImage.height - size) / 2;
                 tempCtx.drawImage(originalImage, x, y, size, size, 0, 0, tempCanvas.width, tempCanvas.height);
                 
-                // Draw big (crunchy pixels)
                 ctx.globalCompositeOperation = 'source-over';
                 ctx.filter = 'saturate(150%) brightness(110%)';
                 ctx.imageSmoothingEnabled = false;
                 ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, canvas.width, canvas.height);
 
-                // Magic step: Overlay a soft blur on top of the pixels so they look ethereal
                 ctx.globalCompositeOperation = 'screen';
-                ctx.filter = 'blur(4px) hue-rotate(280deg)'; // Soft pink/purple glow over the pixels
+                ctx.filter = 'blur(4px) hue-rotate(280deg)'; 
                 ctx.globalAlpha = 0.4;
                 ctx.drawImage(canvas, 0, 0);
             }
