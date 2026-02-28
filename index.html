@@ -3,130 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Y2K PFP Generator</title>
+    <title>Ethereal Y2K PFP Maker</title>
     <style>
-        /* Windows Vista Background */
+        /* Dreamy Bubblegum & Teal Background */
         body {
             margin: 0;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #0088cc, #00ffcc);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffb6c1 0%, #ffdde1 40%, #e0ffff 60%, #aeeeee 100%);
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
             overflow: hidden;
         }
 
-        /* Windows Vista Aero Glass Window */
-        .vista-window {
-            width: 400px;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.4);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        /* Glossy Title Bar */
-        .title-bar {
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8) 0%, rgba(180, 220, 255, 0.5) 50%, rgba(120, 190, 255, 0.6) 51%, rgba(200, 240, 255, 0.8) 100%);
-            padding: 8px 15px;
-            font-weight: bold;
-            color: #003366;
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
-            border-bottom: 1px solid rgba(255,255,255,0.6);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .window-controls span {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-left: 5px;
-            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3);
-        }
-        .close-btn { background: #ff5555; }
-        .max-btn { background: #55ff55; }
-        .min-btn { background: #ffdd55; }
-
-        /* Content Area */
-        .content {
-            padding: 20px;
+        /* Frosted Glass App Window */
+        .glass-panel {
+            width: 420px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.8);
+            padding: 25px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 15px;
         }
 
-        /* Glossy Vista Buttons */
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 8px #ffb6c1, 0 0 15px #aeeeee;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        /* Bubbly Buttons */
         button, input[type="file"]::file-selector-button {
-            background: linear-gradient(to bottom, #e0f0ff 0%, #a0d0ff 49%, #70b0ff 50%, #c0e0ff 100%);
-            border: 1px solid #4080c0;
-            border-radius: 4px;
-            padding: 8px 15px;
-            color: #003366;
+            background: linear-gradient(to bottom, #ffffff, #ffdde1);
+            border: 2px solid #ffb6c1;
+            border-radius: 25px;
+            padding: 10px 20px;
+            color: #d16b8c;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.8), 0 2px 4px rgba(0,0,0,0.2);
-            transition: all 0.2s;
+            box-shadow: 0 4px 10px rgba(255, 182, 193, 0.4), inset 0 2px 5px #ffffff;
+            transition: all 0.2s ease;
+            text-transform: lowercase;
+            letter-spacing: 1px;
         }
 
-        button:active, input[type="file"]::file-selector-button:active {
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.4);
-            background: #70b0ff;
+        button:hover, input[type="file"]::file-selector-button:hover {
+            background: linear-gradient(to bottom, #ffffff, #e0ffff);
+            border-color: #aeeeee;
+            color: #5f9ea0;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(174, 238, 238, 0.5), inset 0 2px 5px #ffffff;
         }
 
-        /* Canvas (Where the image goes) */
+        button:active {
+            transform: translateY(1px);
+        }
+
+        /* The Image Canvas */
         canvas {
             max-width: 100%;
-            border: 2px solid rgba(255,255,255,0.6);
-            border-radius: 4px;
-            background: rgba(0,0,0,0.1);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            border: 4px solid #fff;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             display: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
         }
     </style>
 </head>
 <body>
 
-    <div class="vista-window">
-        <div class="title-bar">
-            <span>PFP_Gen_v1.exe</span>
-            <div class="window-controls">
-                <span class="min-btn"></span>
-                <span class="max-btn"></span>
-                <span class="close-btn"></span>
-            </div>
-        </div>
-        <div class="content">
-            <input type="file" id="upload" accept="image/*">
-            <button id="regenerate" style="display:none;">Regenerate Vibe</button>
-            <canvas id="canvas"></canvas>
-            <button id="download" style="display:none;">Save PFP</button>
+    <div class="glass-panel">
+        <div class="header">✧ pfp aura ✧</div>
+        <input type="file" id="upload" accept="image/*">
+        
+        <canvas id="canvas"></canvas>
+        
+        <div class="controls">
+            <button id="regenerate" style="display:none;">✧ new vibe ✧</button>
+            <button id="download" style="display:none;">save img</button>
         </div>
     </div>
 
     <script>
         const upload = document.getElementById('upload');
         const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
         const regenerateBtn = document.getElementById('regenerate');
         const downloadBtn = document.getElementById('download');
 
         let originalImage = new Image();
 
-        // 1. Handle the Upload
+        // 1. Handle Upload
         upload.addEventListener('change', function(e) {
             const reader = new FileReader();
             reader.onload = function(event) {
                 originalImage.src = event.target.result;
             }
-            reader.readAsDataURL(e.target.files[0]);
+            reader.readAsDataURL(e.target.files);
         });
 
         originalImage.onload = function() {
@@ -135,51 +126,100 @@
             drawOriginalImage();
             
             canvas.style.display = 'block';
-            regenerateBtn.style.display = 'inline-block';
-            downloadBtn.style.display = 'inline-block';
+            regenerateBtn.style.display = 'block';
+            downloadBtn.style.display = 'block';
         };
 
         function drawOriginalImage() {
             const size = Math.min(originalImage.width, originalImage.height);
             const x = (originalImage.width - size) / 2;
             const y = (originalImage.height - size) / 2;
+            
+            ctx.filter = 'none';
+            ctx.globalAlpha = 1.0;
             ctx.drawImage(originalImage, x, y, size, size, 0, 0, canvas.width, canvas.height);
         }
 
-        // 2. The Generator Effects
+        // 2. The Ethereal Generators
         regenerateBtn.addEventListener('click', function() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.filter = 'none';
-            ctx.imageSmoothingEnabled = true;
-
-            // Currently only running the Pixelator until we agree on new filters
-            const effect = 0; 
+            drawOriginalImage(); 
+            const effect = Math.floor(Math.random() * 3);
 
             if (effect === 0) {
-                // The Crunchy Pixelator
-                const pixelSize = 8;
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-                tempCanvas.width = canvas.width / pixelSize;
-                tempCanvas.height = canvas.height / pixelSize;
+                // EFFECT 1: Pearl Pixels (The "rearranged but pretty" look)
+                // Grabs the image data, then draws soft glowing circles instead of squares
+                let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#ffffff"; // white background for the pearls
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const step = 8; // Size of the pearls
+                for (let y = 0; y < canvas.height; y += step) {
+                    for (let x = 0; x < canvas.width; x += step) {
+                        const i = (y * canvas.width + x) * 4;
+                        const r = imageData.data[i];
+                        const g = imageData.data[i+1];
+                        const b = imageData.data[i+2];
+                        
+                        ctx.beginPath();
+                        ctx.arc(x + step/2, y + step/2, step * 0.6, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.85)`; // Slightly transparent
+                        ctx.fill();
+                    }
+                }
+
+            } else if (effect === 1) {
+                // EFFECT 2: Lipgloss Bloom (Soft pink/teal haze)
+                // Draws the image normally, then overlays a blurred, brightly tinted version
+                drawOriginalImage();
+                ctx.globalCompositeOperation = "screen"; // Makes things glow
+                ctx.filter = 'blur(6px) saturate(180%) hue-rotate(-20deg) contrast(120%)';
+                ctx.globalAlpha = 0.6; // Soft overlay
                 
-                tempCtx.drawImage(originalImage, 0, 0, tempCanvas.width, tempCanvas.height);
+                const size = Math.min(originalImage.width, originalImage.height);
+                const x = (originalImage.width - size) / 2;
+                const y = (originalImage.height - size) / 2;
+                ctx.drawImage(originalImage, x, y, size, size, 0, 0, canvas.width, canvas.height);
                 
-                ctx.imageSmoothingEnabled = false;
-                ctx.filter = 'contrast(120%) saturate(150%)'; 
-                ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, canvas.width, canvas.height);
-            } 
-            // New filters will go here once you tell me what they should look like
+                // Reset composite
+                ctx.globalCompositeOperation = "source-over";
+
+            } else if (effect === 2) {
+                // EFFECT 3: Pool Water Ripple (Oceanic shifting)
+                // Shifts the pixels in a gentle wave pattern
+                let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                let newImageData = ctx.createImageData(canvas.width, canvas.height);
+                
+                for (let y = 0; y < canvas.height; y++) {
+                    // Create a wave offset based on the Y position
+                    let xOffset = Math.floor(Math.sin(y * 0.05) * 6); 
+                    
+                    for (let x = 0; x < canvas.width; x++) {
+                        let newX = x + xOffset;
+                        // Keep pixels within bounds
+                        if (newX >= 0 && newX < canvas.width) {
+                            let oldI = (y * canvas.width + x) * 4;
+                            let newI = (y * canvas.width + newX) * 4;
+                            
+                            // Give it a slight teal/aqua tint
+                            newImageData.data[newI] = imageData.data[oldI] * 0.9;     // Red
+                            newImageData.data[newI+1] = imageData.data[oldI+1] * 1.1; // Green
+                            newImageData.data[newI+2] = imageData.data[oldI+2] * 1.2; // Blue
+                            newImageData.data[newI+3] = imageData.data[oldI+3];       // Alpha
+                        }
+                    }
+                }
+                ctx.putImageData(newImageData, 0, 0);
+            }
         });
 
-        // 3. Download
+        // 3. Download Logic
         downloadBtn.addEventListener('click', function() {
             const link = document.createElement('a');
-            link.download = 'Y2K_PFP.png';
+            link.download = 'ethereal_y2k.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         });
     </script>
 </body>
 </html>
-
